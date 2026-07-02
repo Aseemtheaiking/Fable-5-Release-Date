@@ -1,0 +1,545 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Out of Eclipse — Fable 5 & Mythos 5</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link href="https://fonts.googleapis.com/css2?family=Fraunces:ital,opsz,wght@0,9..144,300;0,9..144,500;0,9..144,600;1,9..144,500;1,9..144,600&family=Newsreader:ital,wght@0,400;0,500;1,400;1,500&family=IBM+Plex+Mono:wght@400;500&display=swap" rel="stylesheet">
+<style>
+  :root{
+    --void:#0E0F1A;
+    --void-2:#151831;
+    --amber:#E8A24C;
+    --amber-soft:#F4C482;
+    --silver:#9FB3D1;
+    --paper:#F3EEE4;
+    --paper-dim:#A7A19A;
+    --line:rgba(243,238,228,0.12);
+    --line-strong:rgba(243,238,228,0.22);
+    --ease:cubic-bezier(.16,1,.3,1);
+  }
+  *{box-sizing:border-box;}
+  html{scroll-behavior:smooth;}
+  body{
+    margin:0;
+    background:var(--void);
+    color:var(--paper);
+    font-family:'Newsreader', serif;
+    overflow-x:hidden;
+    -webkit-font-smoothing:antialiased;
+  }
+  @media (prefers-reduced-motion: reduce){
+    *{animation-duration:0.001ms !important; animation-iteration-count:1 !important; transition-duration:0.001ms !important;}
+  }
+
+  /* subtle grain */
+  .grain{
+    position:fixed; inset:0; pointer-events:none; z-index:2; opacity:0.05; mix-blend-mode:overlay;
+    background-image:url("data:image/svg+xml;utf8,<svg xmlns='http://www.w3.org/2000/svg' width='120' height='120'><filter id='n'><feTurbulence type='fractalNoise' baseFrequency='0.9' numOctaves='2' stitchTiles='stitch'/></filter><rect width='100%25' height='100%25' filter='url(%23n)'/></svg>");
+  }
+
+  .stars{
+    position:fixed; inset:0; z-index:0; overflow:hidden; pointer-events:none;
+  }
+  .stars .layer{
+    position:absolute; inset:-10% -10%;
+    background-repeat:repeat;
+    animation: drift 140s linear infinite;
+    opacity:0.55;
+  }
+  .stars .layer.b{ animation-duration:220s; opacity:0.3; }
+  @keyframes drift{ from{ transform:translateY(0); } to{ transform:translateY(-180px); } }
+
+  .wrap{ max-width:1080px; margin:0 auto; padding:0 28px; position:relative; z-index:1; }
+
+  /* ---------------- HERO ---------------- */
+  .hero{
+    min-height:100vh;
+    display:flex;
+    align-items:center;
+    padding:120px 0 80px;
+  }
+  .hero-grid{
+    display:grid;
+    grid-template-columns:1.1fr 0.9fr;
+    align-items:center;
+    gap:40px;
+    width:100%;
+  }
+  @media (max-width:860px){
+    .hero-grid{ grid-template-columns:1fr; }
+    .hero{ padding:100px 0 60px; text-align:left; }
+  }
+
+  .hero-copy{ position:relative; }
+  .hero-copy > *{
+    opacity:0;
+    transform:translateY(16px);
+    filter:blur(6px);
+    animation:riseIn 1s var(--ease) forwards;
+  }
+  .hero-copy > .eyebrow{ animation-delay:0.15s; }
+  .hero-copy > h1{ animation-delay:0.32s; }
+  .hero-copy > .subhead{ animation-delay:0.52s; }
+  .hero-copy > .counter{ animation-delay:0.7s; }
+  .hero-copy > .counter-caption{ animation-delay:0.85s; }
+  .eyebrow{
+    font-family:'IBM Plex Mono', monospace;
+    font-size:12px;
+    letter-spacing:0.22em;
+    text-transform:uppercase;
+    color:var(--silver);
+    margin:0 0 22px;
+    display:flex; align-items:center; gap:10px;
+  }
+  .eyebrow .rule{
+    width:34px; height:1px; background:var(--silver); opacity:0.6; display:inline-block;
+    transform-origin:left center;
+    animation: ruleGrow 1s var(--ease) 0.15s backwards;
+  }
+  @keyframes ruleGrow{ from{ transform:scaleX(0); } to{ transform:scaleX(1); } }
+
+  h1{
+    font-family:'Fraunces', serif;
+    font-style:italic;
+    font-weight:500;
+    font-size:clamp(40px, 6.2vw, 78px);
+    line-height:1.02;
+    margin:0 0 22px;
+    letter-spacing:-0.01em;
+  }
+  h1 em{
+    font-style:italic;
+    font-weight:600;
+    color:var(--amber-soft);
+  }
+
+  .subhead{
+    font-size:18px;
+    color:var(--paper-dim);
+    max-width:440px;
+    line-height:1.6;
+    margin:0 0 40px;
+  }
+
+  .counter{
+    font-family:'IBM Plex Mono', monospace;
+    display:flex;
+    align-items:baseline;
+    gap:2px;
+    font-variant-numeric:tabular-nums;
+    font-size:clamp(26px, 4vw, 38px);
+    color:var(--paper);
+    margin-bottom:10px;
+  }
+  .counter .num{ min-width:1.5ch; display:inline-block; }
+  .counter .sep{ color:var(--line-strong); margin:0 6px; font-weight:300; }
+  .counter .unit{
+    font-size:11px;
+    letter-spacing:0.1em;
+    text-transform:uppercase;
+    color:var(--paper-dim);
+    margin-right:26px;
+    align-self:flex-end;
+    margin-bottom:5px;
+  }
+  .counter-caption{
+    font-family:'IBM Plex Mono', monospace;
+    font-size:12px;
+    color:var(--paper-dim);
+    opacity:0.8;
+    letter-spacing:0.02em;
+  }
+  .counter .num{ will-change:transform, opacity; }
+  .tick{ animation:pulseTick 420ms var(--ease); }
+  @keyframes pulseTick{ 0%{ opacity:0.35; transform:translateY(3px); } 100%{ opacity:1; transform:translateY(0); } }
+
+  /* Eclipse visual */
+  .eclipse-wrap{
+    position:relative;
+    width:100%;
+    max-width:420px;
+    aspect-ratio:1/1;
+    margin:0 auto;
+    justify-self:center;
+  }
+  .corona{
+    position:absolute; inset:8%;
+    border-radius:50%;
+    background:
+      radial-gradient(circle at 50% 50%, var(--amber-soft) 0%, var(--amber) 38%, rgba(232,162,76,0.15) 62%, transparent 72%);
+    filter:blur(0.3px);
+    opacity:0;
+    animation: coronaIn 1.6s var(--ease) 0.3s forwards, coronaBreathe 7s ease-in-out 2s infinite;
+  }
+  @keyframes coronaIn{ from{ opacity:0; transform:scale(0.9); } to{ opacity:1; transform:scale(1); } }
+  @keyframes coronaBreathe{ 0%,100%{ transform:scale(1); } 50%{ transform:scale(1.035); } }
+  .rays{
+    position:absolute; inset:0;
+    border-radius:50%;
+    background:conic-gradient(from 0deg,
+      rgba(244,196,130,0.16) 0deg, transparent 18deg,
+      rgba(244,196,130,0.10) 40deg, transparent 60deg,
+      rgba(244,196,130,0.14) 90deg, transparent 110deg,
+      rgba(244,196,130,0.10) 140deg, transparent 165deg,
+      rgba(244,196,130,0.16) 200deg, transparent 225deg,
+      rgba(244,196,130,0.10) 260deg, transparent 290deg,
+      rgba(244,196,130,0.14) 320deg, transparent 345deg);
+    animation: rotateRays 90s linear infinite;
+    opacity:0.8;
+  }
+  @keyframes rotateRays{ to{ transform:rotate(360deg); } }
+  .disc{
+    position:absolute; inset:8%;
+    border-radius:50%;
+    background: radial-gradient(circle at 38% 35%, #1B1E33, #0A0B14 70%);
+    box-shadow:
+      inset 6px -6px 24px rgba(159,179,209,0.10),
+      0 0 40px rgba(0,0,0,0.6);
+    transform:translateX(0%);
+    animation: eclipseShift 1.8s var(--ease) 0.6s forwards;
+  }
+  @keyframes eclipseShift{ to{ transform:translateX(-34%); } }
+  .disc-rim{
+    position:absolute; inset:8%;
+    border-radius:50%;
+    border:1px solid rgba(159,179,209,0.25);
+    transform:translateX(0%);
+    animation: eclipseShift 1.8s var(--ease) 0.6s forwards;
+  }
+
+  .scroll-cue{
+    position:absolute; left:28px; bottom:28px;
+    font-family:'IBM Plex Mono', monospace;
+    font-size:11px; letter-spacing:0.18em; text-transform:uppercase;
+    color:var(--paper-dim); opacity:0;
+    animation: fadeIn 0.8s ease 1.6s forwards;
+    display:flex; align-items:center; gap:8px;
+  }
+  .scroll-cue .line{ width:1px; height:16px; background:var(--paper-dim); opacity:0.5; animation: pulseLine 2.2s ease-in-out infinite; }
+  @keyframes pulseLine{ 0%,100%{ opacity:0.2; } 50%{ opacity:0.6; } }
+  @keyframes fadeIn{ to{ opacity:0.55; } }
+  @keyframes riseIn{ to{ opacity:1; transform:translateY(0); filter:blur(0); } }
+
+  /* ---------------- reveal helper ---------------- */
+  .reveal{ opacity:0; transform:translateY(18px); transition:opacity 0.8s var(--ease), transform 0.8s var(--ease); }
+  .reveal.is-visible{ opacity:1; transform:translateY(0); }
+
+  /* ---------------- Section shell ---------------- */
+  section{ padding:88px 0; }
+  .section-label{
+    font-family:'IBM Plex Mono', monospace;
+    font-size:12px;
+    letter-spacing:0.2em;
+    text-transform:uppercase;
+    color:var(--silver);
+    margin:0 0 6px;
+  }
+  .section-title{
+    font-family:'Fraunces', serif;
+    font-style:italic;
+    font-weight:500;
+    font-size:clamp(26px, 3.4vw, 36px);
+    margin:0 0 44px;
+    border-bottom:1px solid var(--line);
+    padding-bottom:24px;
+  }
+
+  /* ---------------- Status ---------------- */
+  .status-grid{
+    display:grid;
+    grid-template-columns:1fr 1fr;
+    gap:0;
+  }
+  @media (max-width:720px){ .status-grid{ grid-template-columns:1fr; } }
+  .status-item{
+    padding:6px 40px 6px 0;
+    border-right:1px solid var(--line);
+    transition:transform 0.5s var(--ease);
+  }
+  .status-item:hover{ transform:translateY(-3px); }
+  .status-item:hover .status-tag{ color:var(--amber); }
+  .status-tag{ transition:color 0.4s var(--ease); }
+  .status-item:last-child{ border-right:none; padding-left:40px; padding-right:0; }
+  @media (max-width:720px){
+    .status-item{ border-right:none; border-bottom:1px solid var(--line); padding:0 0 32px; margin-bottom:32px; }
+    .status-item:last-child{ padding-left:0; border-bottom:none; margin-bottom:0; }
+  }
+  .status-item h3{
+    font-family:'Fraunces', serif;
+    font-weight:600;
+    font-size:22px;
+    margin:0 0 12px;
+    display:flex; align-items:center; gap:10px;
+  }
+  .pulse-dot{
+    width:7px; height:7px; border-radius:50%;
+    background:var(--amber-soft);
+    box-shadow:0 0 0 0 rgba(244,196,130,0.5);
+    animation: dotPulse 2.4s ease-out infinite;
+    flex-shrink:0;
+  }
+  @keyframes dotPulse{
+    0%{ box-shadow:0 0 0 0 rgba(244,196,130,0.45); }
+    70%{ box-shadow:0 0 0 8px rgba(244,196,130,0); }
+    100%{ box-shadow:0 0 0 0 rgba(244,196,130,0); }
+  }
+  .status-item p{ font-size:16px; line-height:1.65; color:var(--paper-dim); margin:0 0 14px; }
+  .status-tag{
+    font-family:'IBM Plex Mono', monospace;
+    font-size:11px; letter-spacing:0.1em; text-transform:uppercase;
+    color:var(--amber-soft);
+  }
+
+  /* ---------------- Chronicle ---------------- */
+  .chron-track{
+    display:flex;
+    gap:36px;
+    overflow-x:auto;
+    padding:4px 4px 20px 4px;
+    scroll-snap-type:x proximity;
+    -webkit-mask-image:linear-gradient(90deg, transparent, black 3%, black 94%, transparent);
+    mask-image:linear-gradient(90deg, transparent, black 3%, black 94%, transparent);
+    scrollbar-width:thin;
+    scrollbar-color:var(--line-strong) transparent;
+  }
+  .chron-track::-webkit-scrollbar{ height:4px; }
+  .chron-track::-webkit-scrollbar-thumb{ background:var(--line-strong); border-radius:4px; }
+  .chron-item{
+    min-width:250px; max-width:250px;
+    flex-shrink:0;
+    scroll-snap-align:start;
+    padding-top:20px;
+    position:relative;
+    transition:transform 0.5s var(--ease);
+  }
+  .chron-item:hover{ transform:translateY(-4px); }
+  .chron-item::before{
+    content:"";
+    position:absolute; top:0; left:0;
+    width:100%; height:1px;
+    background:var(--line);
+  }
+  .chron-item::after{
+    content:"";
+    position:absolute; top:-3.5px; left:0;
+    width:8px; height:8px; border-radius:50%;
+    background:var(--void);
+    border:1.5px solid var(--amber-soft);
+    transition:box-shadow 0.4s var(--ease), transform 0.4s var(--ease);
+  }
+  .chron-item:hover::after{
+    box-shadow:0 0 0 5px rgba(244,196,130,0.16);
+    transform:scale(1.15);
+  }
+  .chron-date{
+    font-family:'IBM Plex Mono', monospace;
+    font-size:11.5px; letter-spacing:0.08em;
+    color:var(--amber-soft);
+    margin-bottom:10px;
+    display:block;
+  }
+  .chron-item h4{
+    font-family:'Fraunces', serif;
+    font-weight:600;
+    font-size:17px;
+    margin:0 0 8px;
+  }
+  .chron-item p{ font-size:14.5px; line-height:1.6; color:var(--paper-dim); margin:0; }
+  .swipe-hint{
+    font-family:'IBM Plex Mono', monospace;
+    font-size:11px; letter-spacing:0.1em; text-transform:uppercase;
+    color:var(--paper-dim); opacity:0.55;
+    margin-top:6px;
+  }
+
+  footer{
+    border-top:1px solid var(--line);
+    padding:36px 0 60px;
+    font-family:'IBM Plex Mono', monospace;
+    font-size:12px;
+    color:var(--paper-dim);
+    opacity:0.75;
+    line-height:1.8;
+  }
+  footer a{ color:var(--amber-soft); text-decoration:none; border-bottom:1px solid rgba(244,196,130,0.3); }
+</style>
+</head>
+<body>
+
+<div class="grain"></div>
+<div class="stars" aria-hidden="true">
+  <div class="layer a" id="starA"></div>
+  <div class="layer b" id="starB"></div>
+</div>
+
+<div class="wrap">
+  <div class="hero">
+    <div class="hero-grid">
+      <div class="hero-copy">
+        <div class="eyebrow"><span class="rule"></span>Project Glasswing · Status Ledger</div>
+        <h1>Out of<br><em>eclipse.</em></h1>
+        <p class="subhead">Claude Fable 5 and Mythos 5 were suspended under a US export-control directive on June 12. The order was lifted June 30, and access has been returning since.</p>
+        <div class="counter" id="timer">
+          <span class="num" id="d">00</span><span class="unit">d</span>
+          <span class="num" id="h">00</span><span class="unit">h</span>
+          <span class="num" id="m">00</span><span class="unit">m</span>
+          <span class="num" id="s">00</span><span class="unit">s</span>
+        </div>
+        <div class="counter-caption" id="caption">since restoration began — Jul 1, 2026, 00:00 ET</div>
+      </div>
+      <div class="eclipse-wrap" aria-hidden="true">
+        <div class="corona"></div>
+        <div class="rays"></div>
+        <div class="disc"></div>
+        <div class="disc-rim"></div>
+      </div>
+    </div>
+    <div class="scroll-cue"><span class="line"></span>the chronicle</div>
+  </div>
+
+  <section id="status">
+    <div class="section-label reveal">I</div>
+    <h2 class="section-title reveal">Current standing</h2>
+    <div class="status-grid">
+      <div class="status-item reveal">
+        <h3><span class="pulse-dot"></span>Fable 5</h3>
+        <p>Rolling out globally across Claude.ai, Claude Platform, Claude Code, and Claude Cowork. Cloud partner access — AWS, Google Cloud, Microsoft Foundry — is restoring on a rolling basis.</p>
+        <span class="status-tag">Restored</span>
+      </div>
+      <div class="status-item reveal">
+        <h3><span class="pulse-dot"></span>Mythos 5</h3>
+        <p>Reinstated in stages, beginning with vetted Project Glasswing organizations on June 26, ahead of the wider Fable 5 return.</p>
+        <span class="status-tag">Restored to partners</span>
+      </div>
+    </div>
+  </section>
+
+  <section id="chronicle">
+    <div class="section-label reveal">II</div>
+    <h2 class="section-title reveal">How we got here</h2>
+    <div class="chron-track reveal" id="chronTrack">
+      <div class="chron-item">
+        <span class="chron-date">Jun 9</span>
+        <h4>Models launch</h4>
+        <p>Anthropic's first Mythos-class models ship. Mythos 5 stays restricted to trusted partners under Project Glasswing.</p>
+      </div>
+      <div class="chron-item">
+        <span class="chron-date">Jun 12</span>
+        <h4>Directive lands</h4>
+        <p>The US government orders access suspended for foreign nationals worldwide. Unable to verify nationality in real time, Anthropic disables both models for everyone.</p>
+      </div>
+      <div class="chron-item">
+        <span class="chron-date">Jun 26</span>
+        <h4>Mythos 5 partial return</h4>
+        <p>Access returns for a limited set of US organizations after government review.</p>
+      </div>
+      <div class="chron-item">
+        <span class="chron-date">Jun 30</span>
+        <h4>Controls lifted</h4>
+        <p>Commerce Secretary Howard Lutnick notifies Anthropic a license is no longer required. A retrained safety classifier now blocks the reported technique in over 99% of cases.</p>
+      </div>
+      <div class="chron-item">
+        <span class="chron-date">Jul 1</span>
+        <h4>Fable 5 returns</h4>
+        <p>Global rollout begins across every major surface, ending a 19-day suspension.</p>
+      </div>
+    </div>
+    <div class="swipe-hint">swipe for more →</div>
+  </section>
+
+  <footer>
+    Sources: Anthropic newsroom, CIO, CoinDesk, Axios — accurate as of Jul 2, 2026.<br>
+    Timeline dates are approximate; check Anthropic's status page for the latest. Not an official Anthropic product.
+  </footer>
+</div>
+
+<script>
+  // starfield
+  function buildStars(el, count, size, colorA, colorB){
+    let shadows = [];
+    for(let i=0;i<count;i++){
+      const x = Math.random()*100;
+      const y = Math.random()*100;
+      const c = Math.random() > 0.7 ? colorB : colorA;
+      shadows.push(`${x}vw ${y}vh 0 0 ${c}`);
+    }
+    el.style.width = size+'px';
+    el.style.height = size+'px';
+    el.style.boxShadow = shadows.join(',');
+    el.style.borderRadius = '50%';
+  }
+  buildStars(document.getElementById('starA'), 60, 1, 'rgba(243,238,228,0.7)', 'rgba(232,162,76,0.6)');
+  buildStars(document.getElementById('starB'), 34, 2, 'rgba(159,179,209,0.5)', 'rgba(243,238,228,0.35)');
+
+  // countdown / count-up
+  const target = new Date("2026-07-01T00:00:00-04:00").getTime();
+  const d = document.getElementById('d'), h = document.getElementById('h'),
+        m = document.getElementById('m'), s = document.getElementById('s'),
+        caption = document.getElementById('caption');
+  function pad(n){ return String(Math.max(0,n)).padStart(2,'0'); }
+  let lastSec = null;
+  function tick(){
+    const diff = Date.now() - target;
+    const counting = diff >= 0;
+    const abs = Math.abs(diff);
+    const days = Math.floor(abs/86400000);
+    const hours = Math.floor((abs%86400000)/3600000);
+    const mins = Math.floor((abs%3600000)/60000);
+    const secs = Math.floor((abs%60000)/1000);
+    d.textContent = pad(days); h.textContent = pad(hours);
+    m.textContent = pad(mins); s.textContent = pad(secs);
+    if(secs !== lastSec){
+      s.classList.remove('tick'); void s.offsetWidth; s.classList.add('tick');
+      lastSec = secs;
+    }
+    caption.textContent = counting
+      ? "since restoration began — Jul 1, 2026, 00:00 ET"
+      : "until restoration begins — Jul 1, 2026, 00:00 ET";
+  }
+  tick(); setInterval(tick, 1000);
+
+  // safety net: guarantee hero content is visible even if the entrance
+  // animation is blocked or skipped for any reason
+  setTimeout(()=>{
+    document.querySelectorAll('.hero-copy > *, .corona, .scroll-cue').forEach(el=>{
+      el.style.opacity = '1';
+      el.style.transform = 'none';
+      el.style.filter = 'none';
+    });
+  }, 2600);
+
+  // scroll reveal — stagger based on stable DOM order, not callback order
+  const targets = Array.from(document.querySelectorAll('.reveal'));
+  targets.forEach((t, i)=>{ t.dataset.idx = i % 4; });
+  const io = new IntersectionObserver((entries)=>{
+    entries.forEach((entry)=>{
+      if(entry.isIntersecting){
+        entry.target.style.transitionDelay = (entry.target.dataset.idx * 90) + 'ms';
+        entry.target.classList.add('is-visible');
+        io.unobserve(entry.target);
+      }
+    });
+  }, { threshold:0.15 });
+  targets.forEach(t=>io.observe(t));
+
+  // gentle parallax on the eclipse graphic as the hero scrolls out of view
+  const eclipseEl = document.querySelector('.eclipse-wrap');
+  const heroEl = document.querySelector('.hero');
+  let ticking = false;
+  function parallax(){
+    const rect = heroEl.getBoundingClientRect();
+    const progress = Math.min(Math.max(-rect.top / window.innerHeight, 0), 1);
+    eclipseEl.style.transform = `translateY(${progress * 40}px)`;
+    eclipseEl.style.opacity = String(1 - progress * 0.35);
+    ticking = false;
+  }
+  window.addEventListener('scroll', ()=>{
+    if(!ticking){ requestAnimationFrame(parallax); ticking = true; }
+  }, { passive:true });
+  parallax();
+</script>
+
+</body>
+</html>
